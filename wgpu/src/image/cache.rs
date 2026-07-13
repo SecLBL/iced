@@ -220,7 +220,13 @@ impl Cache {
 
         let image = memory.host()?;
 
-        const MAX_SYNC_SIZE: usize = 2 * 1024 * 1024;
+        // VaVChat-Patch: Video-Frames (Screenshare/Kamera) bekommen pro Frame
+        // eine frische, ungecachte Handle-Id. Große Frames (>2 MB, z.B. 1280x720
+        // Screenshare) liefen sonst über den Async-Worker, der beim ersten
+        // Render einen leeren Frame zeichnet (None) und erst ~1 Frame später
+        // hochlädt -> pro Frame ein Blank = Flackern. Sync-Upload bis 128 MB
+        // deckt bis 8K ab und rendert deterministisch im selben Frame.
+        const MAX_SYNC_SIZE: usize = 128 * 1024 * 1024;
 
         // TODO: Concurrent Wasm support
         if image.len() < MAX_SYNC_SIZE || cfg!(target_arch = "wasm32") {
