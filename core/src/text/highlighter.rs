@@ -1,5 +1,5 @@
 //! Highlight text.
-use crate::Color;
+use crate::{Color, Pixels};
 
 use std::ops::Range;
 
@@ -76,6 +76,12 @@ pub struct Format<Font> {
     pub color: Option<Color>,
     /// The `Font` of the text.
     pub font: Option<Font>,
+    /// The size of the text.
+    ///
+    /// Lets a [`Highlighter`] change the size of individual spans — needed to
+    /// render e.g. Markdown headings larger inside a `TextEditor`. `None`
+    /// keeps the editor's base size.
+    pub size: Option<Pixels>,
 }
 
 impl<Font> Default for Format<Font> {
@@ -83,6 +89,7 @@ impl<Font> Default for Format<Font> {
         Self {
             color: None,
             font: None,
+            size: None,
         }
     }
 }

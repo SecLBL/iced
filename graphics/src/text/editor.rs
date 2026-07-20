@@ -658,11 +658,23 @@ impl editor::Editor for Editor {
             for (range, highlight) in highlighter.highlight_line(line.text()) {
                 let format = format_highlight(&highlight);
 
-                if format.color.is_some() || format.font.is_some() {
+                if format.color.is_some()
+                    || format.font.is_some()
+                    || format.size.is_some()
+                {
                     list.add_span(
                         range,
                         &cosmic_text::Attrs {
                             color_opt: format.color.map(text::to_color),
+                            // Per-span metrics: lets a highlighter size
+                            // individual runs (e.g. Markdown headings).
+                            metrics_opt: format.size.map(|size| {
+                                cosmic_text::Metrics::new(
+                                    size.0,
+                                    size.0 * 1.3,
+                                )
+                                .into()
+                            }),
                             ..if let Some(font) = format.font {
                                 text::to_attributes(font)
                             } else {
